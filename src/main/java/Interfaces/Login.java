@@ -183,8 +183,7 @@ public class Login extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Credenciales incorrectas o usuario inactivo.", "Error de Login", JOptionPane.ERROR_MESSAGE);
             }
         }
-        
-
+        else JOptionPane.showMessageDialog(this, "Credenciales incorrestas,vuelva a ingresarlas");
     }//GEN-LAST:event_btnIngresarActionPerformed
 
     /**

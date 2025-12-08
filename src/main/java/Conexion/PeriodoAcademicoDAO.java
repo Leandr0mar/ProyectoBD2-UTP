@@ -99,4 +99,15 @@ public class PeriodoAcademicoDAO {
             return null;
         }
     }
+    
+    public int obtenerIdPeriodoActivo() throws IllegalStateException {
+         String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE activo = TRUE AND CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin";
+         try (PreparedStatement ps = co.getConnection().prepareStatement(sql)) {
+             if (rs.next()) return rs.getInt(1);
+             else throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
+         }catch (SQLException e) {
+            System.out.println("Error al listar periodos: " + e.getMessage());
+        }
+        return 0;
+      }
 }

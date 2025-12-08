@@ -40,8 +40,8 @@ CREATE TABLE matriculas (
     fecha_matricula DATE DEFAULT CURRENT_DATE
 );
 
-CREATE TABLE asignaturas_curso (
-    idAsignaturasCurso SERIAL PRIMARY KEY,
+CREATE TABLE seccion (
+    idseccion SERIAL PRIMARY KEY,
     idCursos INT NOT NULL REFERENCES cursos(idCursos),
     idPeriodoAcademico INT NOT NULL REFERENCES periodos_academicos(idPeriodoAcademico),
     idProfesor INT NOT NULL REFERENCES usuarios(idUsuarios)
@@ -50,7 +50,7 @@ CREATE TABLE asignaturas_curso (
 CREATE TABLE notas (
     idNotas SERIAL PRIMARY KEY,
     idMatriculas INT NOT NULL REFERENCES matriculas(idMatriculas),
-    idAsignaturasCurso INT NOT NULL REFERENCES asignaturas_curso(idAsignaturasCurso),
+    idseccion INT NOT NULL REFERENCES seccion(idseccion),
     PC1 DECIMAL(4,2) CHECK (PC1 BETWEEN 0 AND 20),
     PC2 DECIMAL(4,2) CHECK (PC2 BETWEEN 0 AND 20),
     PC3 DECIMAL(4,2) CHECK (PC3 BETWEEN 0 AND 20),
@@ -82,7 +82,7 @@ CREATE TABLE notas (
 CREATE TABLE asistencias (
     idAsitencias SERIAL PRIMARY KEY,
     idMatriculas INT NOT NULL REFERENCES matriculas(idMatriculas),
-    idAsignaturasCurso INT NOT NULL REFERENCES asignaturas_curso(idAsignaturasCurso),
+    idseccion INT NOT NULL REFERENCES seccion(idseccion),
     fecha DATE NOT NULL,
     presente BOOLEAN DEFAULT true
 );
@@ -124,7 +124,63 @@ FOR EACH ROW
 EXECUTE FUNCTION generar_codigo_usuario();
 
 
-ALTER SEQUENCE seq_codigo_usuario RESTART WITH 25;
+--ALTER SEQUENCE seq_codigo_usuario RESTART WITH 1;
+
+
+
+
+
+CREATE SEQUENCE seq_codigo_curso START 1 INCREMENT 1;
+
+CREATE OR REPLACE FUNCTION generar_codigo_curso()
+RETURNS TRIGGER AS $$
+DECLARE
+    next_id BIGINT;
+    prefijo CHAR(1) := 'C'; -- Definimos el prefijo fijo 'C'
+BEGIN
+    -- 1. Obtener el siguiente valor de la secuencia
+    SELECT nextval('seq_codigo_curso') INTO next_id;
+
+    -- 2. Formatear y Asignar el Código
+    -- NEW.codigoCurso será: 'C' + número rellenado (ej: C00001)
+    NEW.codigoCurso := prefijo || LPAD(next_id::text, 5, '0');
+    
+    -- 3. Devolver la fila modificada
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_antes_insertar_curso
+BEFORE INSERT ON cursos
+FOR EACH ROW
+EXECUTE FUNCTION generar_codigo_curso();
+
+
+
+
+CREATE SEQUENCE seq_codigo_matricula START 1 INCREMENT 1;
+
+CREATE OR REPLACE FUNCTION generar_codigo_matricula()
+RETURNS TRIGGER AS $$
+DECLARE
+    next_id BIGINT;
+    prefijo CHAR(1) := 'M'; -- Definimos el prefijo fijo 'M'
+BEGIN
+    -- 1. Obtener el siguiente valor de la secuencia
+    SELECT nextval('seq_codigo_matricula') INTO next_id;
+
+    -- 2. Formatear y Asignar el Código
+    -- NEW.codigoMatricula será: 'M' + número rellenado (ej: M00001)
+    NEW.codigoMatricula := prefijo || LPAD(next_id::text, 5, '0');
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_antes_insertar_matricula
+BEFORE INSERT ON matriculas
+FOR EACH ROW
+EXECUTE FUNCTION generar_codigo_matricula();
 
 
 
@@ -160,5 +216,7 @@ VALUES
 ('U00025', 'roberto.linares.profe@gmail.com', 'profe_rob140', 'Roberto Jesús Linares Huanca', '17890123', 'profesor');
 
 insert into periodos_academicos(codigoPeriodo,fecha_inicio,fecha_fin,activo)
-	values ('2025-2','2020-03-12','2020-06-12',true)
-
+	values ('2025-2','2020-03-12','2020-06-12',true);
+insert into cursos(nombre,horas_semanales,ciclo)
+	values('Fisica',5,1);
+select * from cursos
