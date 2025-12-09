@@ -17,6 +17,20 @@ public class Matricula {
     public Matricula() {
     }
 
+    public Matricula(int idAlumno, int idCurso) {
+        this.idAlumno = idAlumno;
+        this.idCurso = idCurso;
+    }
+
+    
+    public Matricula(int idAlumno, int idCurso, int idPeriodo, Date fechaMatricula) {
+        this.idAlumno = idAlumno;
+        this.idCurso = idCurso;
+        this.idPeriodo = idPeriodo;
+        this.fechaMatricula = fechaMatricula;
+    }
+
+    
     public Matricula(String codigoMatricula, int idAlumno, int idCurso, int idPeriodo, Date fechaMatricula) {
         this.codigoMatricula = codigoMatricula;
         this.idAlumno = idAlumno;

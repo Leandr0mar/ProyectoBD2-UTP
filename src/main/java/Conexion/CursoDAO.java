@@ -70,4 +70,18 @@ public class CursoDAO {
             return null;
         }
     }
+    
+    public int obtenerIdPorCodigo(String codigoCurso) throws SQLException {
+        String sql = "SELECT idCursos FROM cursos WHERE codigoCurso = ?";
+        try (Connection conn = co.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoCurso);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idCursos");
+                }
+            }
+        }
+        return 0; // Si no se encuentra
+    }
 }

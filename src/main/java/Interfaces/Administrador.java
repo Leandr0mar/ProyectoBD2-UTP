@@ -10,9 +10,12 @@ import Conexion.UsuarioDAO;
 import Conexion.PeriodoAcademicoDAO;
 import Conexion.conexionBd;
 import Objeto.Curso;
+import Objeto.Matricula;
 import Objeto.PeriodoAcademico;
 import Objeto.Usuario;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,11 +31,17 @@ public class Administrador extends javax.swing.JFrame {
     PeriodoAcademicoDAO Pdao = new PeriodoAcademicoDAO();
     CursoDAO Cdao= new CursoDAO();
     MatriculaDAO Mdao= new MatriculaDAO();
-    DefaultTableModel modeloUsuario,modeloUsuarioFiltrado,modeloPeriodoAcademico, modeloCurso;
+    DefaultTableModel modeloUsuario,modeloUsuarioFiltrado,modeloPeriodoAcademico, modeloCurso,modeloMatricula;
     Connection con;
     conexionBd co = new conexionBd();
     PreparedStatement ps;
     ResultSet rs;
+    
+    
+    private HashMap<String, String> mapaAlumnos; 
+    private HashMap<String, String> mapaCursos;   
+    private int idAlumnoSeleccionado = 0; // Se usará en el botón registrar
+    private int idCursoSeleccionado = 0;
     
     public Administrador() {
         initComponents();
@@ -41,8 +50,10 @@ public class Administrador extends javax.swing.JFrame {
         listarUsuarios();
         listarPeriodoAcademico(); 
         listarCursos();
-        cargarAlumnos();
-        cargarCursos();
+        cargarAlumnosMatricula();
+        cargarCursosMatricula();
+        cargarPeriodoActivo();
+        listarMatriculas();
     }
 
   
@@ -121,7 +132,11 @@ public class Administrador extends javax.swing.JFrame {
         cbxCursoMatricula = new javax.swing.JComboBox<>();
         txtPeriodoMatricula = new javax.swing.JTextField();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblMatricula = new javax.swing.JTable();
+        btnRegistroMatricula = new javax.swing.JButton();
+        btnLimpiarMatricula = new javax.swing.JButton();
+        btnModificarMatricula = new javax.swing.JButton();
+        btnEliminarMatricula = new javax.swing.JButton();
         jPanel12 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -737,7 +752,7 @@ public class Administrador extends javax.swing.JFrame {
 
         txtPeriodoMatricula.setEditable(false);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblMatricula.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -756,7 +771,20 @@ public class Administrador extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane4.setViewportView(jTable1);
+        jScrollPane4.setViewportView(tblMatricula);
+
+        btnRegistroMatricula.setText("Registro");
+        btnRegistroMatricula.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistroMatriculaActionPerformed(evt);
+            }
+        });
+
+        btnLimpiarMatricula.setText("Limpiar");
+
+        btnModificarMatricula.setText("Modificar");
+
+        btnEliminarMatricula.setText("Eliminar");
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
@@ -774,10 +802,12 @@ public class Administrador extends javax.swing.JFrame {
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel21)
                                     .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel22)
-                                            .addComponent(jLabel19)
-                                            .addComponent(jLabel20))
+                                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(btnRegistroMatricula)
+                                            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(jLabel22)
+                                                .addComponent(jLabel19)
+                                                .addComponent(jLabel20)))
                                         .addGap(38, 38, 38)
                                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(cbxCursoMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -786,10 +816,17 @@ public class Administrador extends javax.swing.JFrame {
                                             .addComponent(cbxAlumnoMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                             .addGroup(jPanel11Layout.createSequentialGroup()
                                 .addGap(202, 202, 202)
-                                .addComponent(txtCodMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(153, 153, 153)
+                                .addComponent(txtCodMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel11Layout.createSequentialGroup()
+                                .addGap(61, 61, 61)
+                                .addComponent(btnModificarMatricula)
+                                .addGap(100, 100, 100)
+                                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnLimpiarMatricula)
+                                    .addComponent(btnEliminarMatricula))))
+                        .addGap(95, 95, 95)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 771, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(323, Short.MAX_VALUE))
+                .addContainerGap(328, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -814,6 +851,14 @@ public class Administrador extends javax.swing.JFrame {
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel22)
                             .addComponent(txtFechaMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(70, 70, 70)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnRegistroMatricula)
+                            .addComponent(btnLimpiarMatricula))
+                        .addGap(45, 45, 45)
+                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnModificarMatricula)
+                            .addComponent(btnEliminarMatricula))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
                         .addContainerGap(65, Short.MAX_VALUE)
@@ -1249,6 +1294,45 @@ public class Administrador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtDNIActionPerformed
 
+    private void btnRegistroMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistroMatriculaActionPerformed
+
+        if(validarCamposMatricula()){
+            String nombreAlumno = cbxAlumnoMatricula.getSelectedItem().toString();
+            String nombreCurso = cbxCursoMatricula.getSelectedItem().toString();
+
+            String codigoAlumno = mapaAlumnos.get(nombreAlumno);
+            String codigoCurso = mapaCursos.get(nombreCurso);
+
+            if (codigoAlumno == null || codigoCurso == null) {
+                JOptionPane.showMessageDialog(this, "Error: El código único del alumno/curso no se encontró.", "Error Lógico", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                    int idAlumno = Udao.obtenerIdPorCodigo(codigoAlumno);
+                    int idCurso = Cdao.obtenerIdPorCodigo(codigoCurso);
+
+                    if (idAlumno == 0 || idCurso == 0) {
+                        JOptionPane.showMessageDialog(this, "Error: El alumno o curso no existen en la BD. Revise el mapeo.", "Error Interno", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+
+                    Matricula nuevaMatricula = new Matricula(idAlumno, idCurso);
+
+                    // 5. Registrar
+                    if (Mdao.registrarMatricula(nuevaMatricula)) {
+                        JOptionPane.showMessageDialog(this, "Matrícula registrada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        listarMatriculas();
+                        LimpiarCamposMatricula();
+                    } else {
+                    }
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "Error al obtener IDs: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+                }
+        }
+    }//GEN-LAST:event_btnRegistroMatriculaActionPerformed
+
 
     
     //Metodos para Gestion de Datos (Usuarios)
@@ -1543,32 +1627,101 @@ public class Administrador extends javax.swing.JFrame {
     
     //Metodos para Gestion de Matriculas
     
-    private void cargarAlumnos() {
-        try {
-            rs = Udao.listarUsuarios();
-            cbxAlumnoMatricula.removeAllItems();
-            cbxAlumnoMatricula.addItem("Elija un Alumno");
+    void LimpiarCamposMatricula(){
+            cbxAlumnoMatricula.setSelectedIndex(0);
+            cbxCursoMatricula.setSelectedIndex(0);
+            txtFechaMatricula.setText("");
+        }
+    
+    private void cargarAlumnosMatricula() {
+        mapaAlumnos = new HashMap<>(); // Inicializar el mapa
+        cbxAlumnoMatricula.removeAllItems();
+        cbxAlumnoMatricula.addItem("Elija un Alumno"); // Placeholder (índice 0)
+
+        try (java.sql.ResultSet rs = Udao.listarUsuariosAlumnos()) { // Debe listar: codigo y nombre_completo
             while (rs.next()) {
-                cbxAlumnoMatricula.addItem(rs.getString("nombre_completo"));
+                String codigo = rs.getString("codigo");
+                String nombre = rs.getString("nombre_completo");
+
+                cbxAlumnoMatricula.addItem(nombre);
+                mapaAlumnos.put(nombre, codigo); // ALMACENAR: Nombre -> Código Único
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar alumnos: " + e.getMessage());
         }
     }
     
-    private void cargarCursos() {
-        try {
-            rs = Cdao.listarCursos();
-            cbxCursoMatricula.removeAllItems();
-            cbxCursoMatricula.addItem("Elija un Curso");
+    private void cargarCursosMatricula() {
+        mapaCursos = new HashMap<>(); // Inicializar el mapa
+        cbxCursoMatricula.removeAllItems();
+        cbxCursoMatricula.addItem("Elija un Curso"); // Placeholder (índice 0)
+
+        try (java.sql.ResultSet rs = Cdao.listarCursos()) { // Debe listar: codigoCurso y nombre
             while (rs.next()) {
-                cbxCursoMatricula.addItem(rs.getString("nombre"));
+                String codigo = rs.getString("codigoCurso");
+                String nombre = rs.getString("nombre");
+
+                cbxCursoMatricula.addItem(nombre);
+                mapaCursos.put(nombre, codigo); // ALMACENAR: Nombre -> Código Único
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar alumnos: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al cargar cursos: " + e.getMessage());
         }
     }
     
+    void listarMatriculas() {
+       modeloMatricula = (DefaultTableModel) tblMatricula.getModel();
+       modeloMatricula.setRowCount(0);
+
+       // 1. Obtener la lista de objetos del DAO
+       List<Matricula> listaMatriculas = Mdao.listarMatriculasObjetos();
+
+       // 2. Llenar la tabla desde la lista
+       for (Matricula m : listaMatriculas) {
+           modeloMatricula.addRow(new Object[]{
+               m.getCodigoMatricula(),
+               m.getNombreAlumno(),
+               m.getNombreCurso(),
+               m.getCodigoPeriodo(),
+               m.getFechaMatricula() // Ya es java.sql.Date
+           });
+       }
+
+       // El try-catch ya no es necesario aquí, ya que el DAO maneja el error SQL
+       // y devuelve una lista vacía si falla.
+   }
+
+    private void cargarPeriodoActivo() {
+    try {
+        String codigoPeriodo = Pdao.obtenerCodigoPeriodoActivo();
+        txtPeriodoMatricula.setText(codigoPeriodo);
+    } catch (IllegalStateException e) {
+        txtPeriodoMatricula.setText("NO ACTIVO");
+        JOptionPane.showMessageDialog(this, "El sistema no tiene un período académico activo. Habilite uno en Administración.", "Error de Configuración", JOptionPane.ERROR_MESSAGE);
+        
+    } catch (SQLException e) {
+        System.err.println("Error de Base de Datos al cargar periodo: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error de conexión o SQL: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
+    boolean validarCamposMatricula() {
+        if (cbxAlumnoMatricula.getSelectedIndex() == 0 ) {
+            JOptionPane.showMessageDialog(this, "Ingrese el Alumno");
+            cbxEstadoPeriodoAcademico.requestFocus();
+            return false;
+        }
+        if (cbxCursoMatricula.getSelectedIndex() == 0 ) {
+            JOptionPane.showMessageDialog(this, "Ingrese el Curso");
+            cbxCursoMatricula.requestFocus();
+            return false;
+        }
+        if (txtPeriodoMatricula.getText().equals("NO ACTIVO")) {
+            JOptionPane.showMessageDialog(this, "No se puede matricular: No hay un período académico vigente.", "Error de Sistema", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -1596,14 +1749,18 @@ public class Administrador extends javax.swing.JFrame {
     private javax.swing.JButton btbLimpiarUsuario;
     private javax.swing.JButton btnActualizarPeriodo;
     private javax.swing.JButton btnEliminarCurso;
+    private javax.swing.JButton btnEliminarMatricula;
     private javax.swing.JButton btnEliminarPeriodo;
     private javax.swing.JButton btnEliminarUsuario;
     private javax.swing.JButton btnLimpiarCurso;
+    private javax.swing.JButton btnLimpiarMatricula;
     private javax.swing.JButton btnLimpiarPeriodo;
     private javax.swing.JButton btnModificarCurso;
+    private javax.swing.JButton btnModificarMatricula;
     private javax.swing.JButton btnModificarUsuario;
     private javax.swing.JButton btnRegistrarCurso;
     private javax.swing.JButton btnRegistrarUsuario;
+    private javax.swing.JButton btnRegistroMatricula;
     private javax.swing.JButton btnRegistroPeriodo;
     private javax.swing.JComboBox<String> cbxAlumnoMatricula;
     private javax.swing.JComboBox<String> cbxCiclo;
@@ -1653,8 +1810,8 @@ public class Administrador extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jTabbedPane3;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable tblCurso;
+    private javax.swing.JTable tblMatricula;
     private javax.swing.JTable tblPeriodo;
     private javax.swing.JTable tblUsuarios;
     private javax.swing.JTextField txtBuscaUsuarios;

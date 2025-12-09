@@ -193,5 +193,31 @@ public class UsuarioDAO {
             System.out.println("Error al listar Usuarios: " + e.getMessage());
         }
         return rs;
+    } 
+    
+    public ResultSet listarUsuariosAlumnos() {
+        rs = null;
+        try {
+            String sql = "SELECT codigo,email, contrasena, nombre_completo, dni, rol, estado FROM usuarios WHERE rol like('alumno')order by codigo";
+            ps = co.getConnection().prepareStatement(sql);
+            rs = ps.executeQuery();
+        } catch (Exception e) {
+            System.out.println("Error al listar Usuarios: " + e.getMessage());
+        }
+        return rs;
+    }
+    
+    public int obtenerIdPorCodigo(String codigoUsuario) throws SQLException {
+        String sql = "SELECT idUsuarios FROM usuarios WHERE codigo = ?";
+        try (Connection conn = co.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idUsuarios");
+                }
+            }
+        }
+        return 0; // Si no se encuentra
     }
 }

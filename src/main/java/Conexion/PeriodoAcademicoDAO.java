@@ -100,14 +100,38 @@ public class PeriodoAcademicoDAO {
         }
     }
     
-    public int obtenerIdPeriodoActivo() throws IllegalStateException {
-         String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE activo = TRUE AND CURRENT_DATE BETWEEN fecha_inicio AND fecha_fin";
-         try (PreparedStatement ps = co.getConnection().prepareStatement(sql)) {
-             if (rs.next()) return rs.getInt(1);
-             else throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
-         }catch (SQLException e) {
-            System.out.println("Error al listar periodos: " + e.getMessage());
-        }
-        return 0;
-      }
+    public int obtenerIdPeriodoActivo() throws IllegalStateException, SQLException {
+        // La consulta debe traer el ID, no solo el código.
+        String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE activo = TRUE"; 
+
+        // Usamos try-with-resources para cerrar la Conexión, PS y RS automáticamente
+        try (Connection conn = co.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) { // <--- ASIGNACIÓN CRÍTICA AQUÍ
+
+            if (rs.next()) {
+                return rs.getInt("idPeriodoAcademico");
+            } else {
+                // No hay periodo activo (LANZA LA EXCEPCIÓN DE NEGOCIO)
+                throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
+            }
+
+        } // Recursos cerrados automáticamente
+    }
+    
+    public String obtenerCodigoPeriodoActivo() throws IllegalStateException, SQLException {
+        String sql = "SELECT codigoPeriodo FROM periodos_academicos WHERE activo = TRUE";
+
+        try (Connection conn = co.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getString("codigoPeriodo"); 
+            } else {
+                throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
+            }
+
+        } 
+    }
 }
