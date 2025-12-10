@@ -71,17 +71,27 @@ public class CursoDAO {
         }
     }
     
-    public int obtenerIdPorCodigo(String codigoCurso) throws SQLException {
-        String sql = "SELECT idCursos FROM cursos WHERE codigoCurso = ?";
+    public int obtenerIdCursoPorNombre(String nombreCurso) throws SQLException {
+        String sql = "SELECT idCursos FROM cursos WHERE nombre = ?";
         try (Connection conn = co.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, codigoCurso);
+            ps.setString(1, nombreCurso);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("idCursos");
                 }
             }
         }
-        return 0; // Si no se encuentra
+        return 0; 
+    }
+    
+    public ResultSet listarCursosParaCombo() throws SQLException {
+            String sql = "SELECT idCursos, nombre " +
+                     "FROM cursos " +
+                     "ORDER BY idCursos";
+
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
     }
 }

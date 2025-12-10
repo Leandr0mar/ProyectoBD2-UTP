@@ -11,7 +11,7 @@ public class PeriodoAcademicoDAO {
     ResultSet rs;
     
     public boolean registrarPeriodo(PeriodoAcademico periodo) {
-        // Lógica clave: Desactivar el periodo activo anterior si el nuevo será activo
+
         if (periodo.isEstado()) {
             desactivarPeriodoActivoAnterior();
         }
@@ -92,7 +92,7 @@ public class PeriodoAcademicoDAO {
     public ResultSet listarPeriodos() {
         String sql = "SELECT idPeriodoAcademico, codigoPeriodo, fecha_inicio, fecha_fin, activo FROM periodos_academicos ORDER BY fecha_inicio";
         try {
-            PreparedStatement ps = co.getConnection().prepareStatement(sql);
+            ps = co.getConnection().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException e) {
             System.out.println("Error al listar periodos: " + e.getMessage());
@@ -100,38 +100,28 @@ public class PeriodoAcademicoDAO {
         }
     }
     
-    public int obtenerIdPeriodoActivo() throws IllegalStateException, SQLException {
-        // La consulta debe traer el ID, no solo el código.
-        String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE activo = TRUE"; 
-
-        // Usamos try-with-resources para cerrar la Conexión, PS y RS automáticamente
-        try (Connection conn = co.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) { // <--- ASIGNACIÓN CRÍTICA AQUÍ
-
-            if (rs.next()) {
-                return rs.getInt("idPeriodoAcademico");
-            } else {
-                // No hay periodo activo (LANZA LA EXCEPCIÓN DE NEGOCIO)
-                throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
+    public int obtenerIdPeriodoPorCodigo(String codigoPeriodo) throws SQLException {
+        String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE codigoPeriodo = ?";
+        try (Connection conn = co.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, codigoPeriodo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idPeriodoAcademico");
+                }
             }
-
-        } // Recursos cerrados automáticamente
+        }
+        return 0; 
     }
     
-    public String obtenerCodigoPeriodoActivo() throws IllegalStateException, SQLException {
-        String sql = "SELECT codigoPeriodo FROM periodos_academicos WHERE activo = TRUE";
+    public ResultSet listarPeriodosParaCombo() throws SQLException {
+    // Las tablas son 'periodos_academicos', las columnas son 'idPeriodoAcademico' y 'codigoPeriodo'.
+        String sql = "SELECT idPeriodoAcademico, codigoPeriodo " +
+                     "FROM periodos_academicos " +
+                     "ORDER BY idPeriodoAcademico";
 
-        try (Connection conn = co.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getString("codigoPeriodo"); 
-            } else {
-                throw new IllegalStateException("El sistema no tiene un período académico activo/vigente.");
-            }
-
-        } 
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
     }
 }

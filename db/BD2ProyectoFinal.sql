@@ -13,7 +13,7 @@ CREATE TABLE usuarios (
 	token_recuperacion VARCHAR(255) NULL,
 	token_expiracion TIMESTAMP NULL
 );
-
+select * from cursos
 CREATE TABLE periodos_academicos (
     idPeriodoAcademico SERIAL PRIMARY KEY,
     codigoPeriodo VARCHAR(10) UNIQUE NOT NULL,
@@ -124,10 +124,8 @@ FOR EACH ROW
 EXECUTE FUNCTION generar_codigo_usuario();
 
 
---ALTER SEQUENCE seq_codigo_usuario RESTART WITH 1;
-
-
-
+--ALTER SEQUENCE seq_codigo_usuario RESTART WITH 50;
+--ALTER SEQUENCE seq_codigo_curso RESTART WITH 1;
 
 
 CREATE SEQUENCE seq_codigo_curso START 1 INCREMENT 1;
@@ -154,7 +152,6 @@ CREATE TRIGGER trg_antes_insertar_curso
 BEFORE INSERT ON cursos
 FOR EACH ROW
 EXECUTE FUNCTION generar_codigo_curso();
-
 
 
 
@@ -215,8 +212,31 @@ VALUES
 ('U00024', 'valeria.vega@outlook.com', 'alumno_val130', 'Valeria Pía Vega Rojas', '74456789', 'alumno'),
 ('U00025', 'roberto.linares.profe@gmail.com', 'profe_rob140', 'Roberto Jesús Linares Huanca', '17890123', 'profesor');
 
-insert into periodos_academicos(codigoPeriodo,fecha_inicio,fecha_fin,activo)
-	values ('2025-2','2020-03-12','2020-06-12',true);
-insert into cursos(nombre,horas_semanales,ciclo)
-	values('Fisica',5,1);
-select * from cursos
+INSERT INTO cursos (,nombre, horas_semanales, ciclo)
+VALUES 
+('Introducción a la Programación', 5, 1), -- idCursos = 1
+('Álgebra Lineal', 6, 2),                  -- idCursos = 2
+('Bases de Datos I', 5, 3),                 -- idCursos = 3
+('Programación Orientada a Objetos', 6, 4),  -- idCursos = 4
+('Diseño Web UX/UI', 4, 4),                 -- idCursos = 5
+('Cálculo Integral', 6, 2),                -- idCursos = 6
+('Redes y Conectividad', 5, 5),             -- idCursos = 7
+('Tesis y Proyectos', 4, 9),                -- idCursos = 8
+('Gestión Empresarial', 4, 7),              -- idCursos = 9
+('Sistemas Operativos', 5, 3);              -- idCursos = 10
+
+INSERT INTO periodos_academicos (codigoPeriodo, fecha_inicio, fecha_fin, activo)
+VALUES 
+('2025-I', '2025-03-01', '2025-07-31', FALSE),
+('2025-II', '2025-08-15', '2025-12-15', TRUE);
+
+
+INSERT INTO matriculas (alumno_id, curso_id, periodo_id, fecha_matricula)
+VALUES 
+-- Alumno 3 (Luis Pérez) se matricula en Curso 1 (Intro a Programación)
+(52, 7, 1, CURRENT_DATE); 
+
+
+
+SELECT codigo,email, contrasena, nombre_completo, dni, rol, estado FROM usuarios WHERE rol like('alumno')order by codigo
+SELECT codigoPeriodo FROM periodos_academicos WHERE activo = TRUE

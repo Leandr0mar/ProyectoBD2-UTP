@@ -1,66 +1,39 @@
 package Objeto;
 
-import java.sql.Date;
-
+import java.util.Date;
 
 public class Matricula {
+    
     private String codigoMatricula;
-    private int idAlumno;
-    private int idCurso;
-    private int idPeriodo;
-    
-    private String nombreAlumno; 
-    private String nombreCurso; 
-    private String codigoPeriodo; 
-    private Date fechaMatricula;
+    private String nombreAlumno;
+    private String nombreCurso;
+    private String codigoPeriodo;
 
-    public Matricula() {
-    }
+    // Opcionalmente, para Modificar/Eliminar, podemos incluir los IDs:
+    private int alumno_id;
+    private int curso_id;
+    private int periodo_id;
 
-    public Matricula(int idAlumno, int idCurso) {
-        this.idAlumno = idAlumno;
-        this.idCurso = idCurso;
-    }
-
-    
-    public Matricula(int idAlumno, int idCurso, int idPeriodo, Date fechaMatricula) {
-        this.idAlumno = idAlumno;
-        this.idCurso = idCurso;
-        this.idPeriodo = idPeriodo;
-        this.fechaMatricula = fechaMatricula;
+    public Matricula(int alumno_id, int curso_id, int periodo_id) {
+        this.alumno_id = alumno_id;
+        this.curso_id = curso_id;
+        this.periodo_id = periodo_id;
     }
 
     
-    public Matricula(String codigoMatricula, int idAlumno, int idCurso, int idPeriodo, Date fechaMatricula) {
-        this.codigoMatricula = codigoMatricula;
-        this.idAlumno = idAlumno;
-        this.idCurso = idCurso;
-        this.idPeriodo = idPeriodo;
-        this.fechaMatricula = fechaMatricula;
-    }
-
-    public Matricula(String codigoMatricula, String nombreAlumno, String nombreCurso, String codigoPeriodo, Date fechaMatricula) {
+    
+    public Matricula(String codigoMatricula, String nombreAlumno, String nombreCurso, String codigoPeriodo, int alumno_id, int curso_id, int periodo_id) {
         this.codigoMatricula = codigoMatricula;
         this.nombreAlumno = nombreAlumno;
         this.nombreCurso = nombreCurso;
         this.codigoPeriodo = codigoPeriodo;
-        this.fechaMatricula = fechaMatricula;
+        this.alumno_id = alumno_id;
+        this.curso_id = curso_id;
+        this.periodo_id = periodo_id;
     }
-
+    
     public String getCodigoMatricula() {
         return codigoMatricula;
-    }
-
-    public int getIdAlumno() {
-        return idAlumno;
-    }
-
-    public int getIdCurso() {
-        return idCurso;
-    }
-
-    public int getIdPeriodo() {
-        return idPeriodo;
     }
 
     public String getNombreAlumno() {
@@ -74,10 +47,9 @@ public class Matricula {
     public String getCodigoPeriodo() {
         return codigoPeriodo;
     }
-
-    public Date getFechaMatricula() {
-        return fechaMatricula;
-    }
     
-    
+    // Si los necesitas para la lógica de modificación
+    public int getAlumno_id() { return alumno_id; }
+    public int getCurso_id() { return curso_id; }
+    public int getPeriodo_id() { return periodo_id; }
 }

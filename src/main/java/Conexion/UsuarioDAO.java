@@ -207,17 +207,28 @@ public class UsuarioDAO {
         return rs;
     }
     
-    public int obtenerIdPorCodigo(String codigoUsuario) throws SQLException {
-        String sql = "SELECT idUsuarios FROM usuarios WHERE codigo = ?";
-        try (Connection conn = co.getConnection();
+    public int obtenerIdPorNombreCompleto(String nombreCompleto) throws SQLException {
+        String sql = "SELECT idUsuarios FROM usuarios WHERE nombre_completo = ?";
+        try (Connection conn = co.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, codigoUsuario);
+            ps.setString(1, nombreCompleto);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("idUsuarios");
                 }
             }
         }
-        return 0; // Si no se encuentra
+        return 0; 
     }
+    
+    public ResultSet listarAlumnosParaCombo() throws SQLException {
+        String sql = "SELECT idUsuarios, nombre_completo " +
+                     "FROM usuarios " +
+                     "WHERE rol = 'alumno' " + // Ajusta la condición de filtro según tu BD
+                     "ORDER BY idUsuarios";
+
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
+        }
 }
