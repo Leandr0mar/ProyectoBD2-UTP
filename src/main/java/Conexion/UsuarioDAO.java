@@ -221,16 +221,62 @@ public class UsuarioDAO {
         return -1;
     }
     
+    public int obtenerIdProfesorPorNombre(String nombreCompleto) throws SQLException {
+        String sql = "SELECT idUsuarios FROM usuarios WHERE nombre_completo = ? AND rol = 'profesor'";
+        try (Connection cn = co.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, nombreCompleto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idUsuarios");
+                }
+            }
+        }
+        return -1;
+    }
+    
     public java.sql.ResultSet listarAlumnosParaCombo() throws SQLException {
-    // Usamos el ID interno (idUsuarios) para la matrícula
-    String sql = "SELECT nombre_completo " +
-                 "FROM usuarios " +
-                 "WHERE rol = 'alumno' " +
-                 "ORDER BY nombre_completo";
+        String sql = "SELECT nombre_completo " +
+                     "FROM usuarios " +
+                     "WHERE rol = 'alumno' " +
+                     "ORDER BY nombre_completo";
+
+        java.sql.Connection cn = co.getConnection();
+        java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
+    }
     
-    java.sql.Connection cn = co.getConnection();
-    java.sql.PreparedStatement ps = cn.prepareStatement(sql);
-    return ps.executeQuery();
-}
+    public java.sql.ResultSet listarProfesorParaCombo() throws SQLException {
+        String sql = "SELECT nombre_completo " +
+                     "FROM usuarios " +
+                     "WHERE rol = 'profesor' and estado=true " +
+                     "ORDER BY nombre_completo";
+
+        java.sql.Connection cn = co.getConnection();
+        java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
+    }
     
+    public ResultSet listarAlumnosPorCodigoSeccion(String codigoSeccion) throws SQLException {
+        String sql = """
+        SELECT DISTINCT 
+               u.idUsuarios AS idAlumno, 
+               u.nombre_completo
+        FROM usuarios u
+        JOIN matriculas m ON u.idUsuarios = m.alumno_id
+        JOIN secciones s ON m.curso_id = s.idCursos 
+                        AND m.periodo_id = s.idPeriodoAcademico
+        JOIN periodos_academicos pa ON s.idPeriodoAcademico = pa.idPeriodoAcademico
+        WHERE s.codigoSeccion = ?
+          AND u.rol = 'alumno'
+          AND u.estado = true
+          AND pa.activo = true
+        ORDER BY u.nombre_completo
+        """;
+
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        ps.setString(1, codigoSeccion.trim());
+        return ps.executeQuery();
+    }
 }

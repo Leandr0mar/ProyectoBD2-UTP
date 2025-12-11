@@ -13,6 +13,14 @@ public class Seccion {
     private int curso_id;
     private int periodo_id; 
 
+    public Seccion(int profesor_id, int curso_id, int periodo_id) {
+        this.profesor_id = profesor_id;
+        this.curso_id = curso_id;
+        this.periodo_id = periodo_id;
+    }
+
+    
+    
     public Seccion(String codigoSeccion, int profesor_id, int curso_id, int periodo_id) {
         this.codigoSeccion = codigoSeccion;
         this.profesor_id = profesor_id;

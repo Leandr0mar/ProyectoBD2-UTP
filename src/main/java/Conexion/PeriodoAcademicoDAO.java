@@ -138,12 +138,13 @@ public class PeriodoAcademicoDAO {
     }
 
     public java.sql.ResultSet listarPeriodosParaCombo() throws SQLException {
-    String sql = "SELECT codigoPeriodo " +
-                 "FROM periodos_academicos " +
-                 "ORDER BY codigoPeriodo";
+        String sql = "SELECT codigoPeriodo " +
+                     "FROM periodos_academicos " +
+                     "ORDER BY codigoPeriodo";
+
+        java.sql.Connection cn = co.getConnection();
+        java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+        return ps.executeQuery();
+    }
     
-    java.sql.Connection cn = co.getConnection();
-    java.sql.PreparedStatement ps = cn.prepareStatement(sql);
-    return ps.executeQuery();
-}
 }

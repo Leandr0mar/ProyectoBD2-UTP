@@ -52,6 +52,7 @@ CREATE TABLE secciones (
     fecha_seccion TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     UNIQUE(idCursos, idPeriodoAcademico, codigoSeccion)
 );
+select * from secciones
 
 CREATE TABLE notas (
     idNotas SERIAL PRIMARY KEY,
@@ -194,3 +195,5 @@ CREATE TRIGGER trg_codigo_certificado
     WHEN (NEW.codigo_certificado IS NULL OR NEW.codigo_certificado = '')
     EXECUTE FUNCTION generar_codigo('T');
 
+
+			

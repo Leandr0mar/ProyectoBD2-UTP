@@ -2,6 +2,7 @@ package Interfaces;
 
 import Conexion.CursoDAO;
 import Conexion.MatriculaDAO;
+import Conexion.NotaDAO;
 import Conexion.UsuarioDAO;
 import Conexion.PeriodoAcademicoDAO;
 import Conexion.SeccionDAO;
@@ -9,6 +10,7 @@ import Conexion.conexionBd;
 import Objeto.Curso;
 import Objeto.Matricula;
 import Objeto.PeriodoAcademico;
+import Objeto.Seccion;
 import Objeto.Usuario;
 import java.awt.HeadlessException;
 import java.sql.*;
@@ -28,6 +30,7 @@ public final class Administrador extends javax.swing.JFrame {
     CursoDAO Cdao= new CursoDAO();
     MatriculaDAO Mdao= new MatriculaDAO();
     SeccionDAO Sdao= new SeccionDAO();
+    NotaDAO Ndao = new NotaDAO();
     DefaultTableModel modeloUsuario,modeloUsuarioFiltrado,modeloPeriodoAcademico, modeloCurso,modeloMatricula,modeloSeccion;
     conexionBd co = new conexionBd();
     ResultSet rs;
@@ -45,7 +48,10 @@ public final class Administrador extends javax.swing.JFrame {
         cargarAlumnosMatricula();
         cargarCursosMatricula();
         cargarPeriodosMatricula();
-        
+        cargarProfesorSeccion();
+        cargarCursosSeccion();
+        cargarPeriodosSeccion();
+        cargarProfesoresNota();
     }
 
   
@@ -132,7 +138,7 @@ public final class Administrador extends javax.swing.JFrame {
         jPanel12 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblSeccion = new javax.swing.JTable();
         txtCodSeccion = new javax.swing.JTextField();
         cbxCursoSeccion = new javax.swing.JComboBox<>();
         cbxPeriodoSeccion = new javax.swing.JComboBox<>();
@@ -145,6 +151,29 @@ public final class Administrador extends javax.swing.JFrame {
         btnModificarSeccion = new javax.swing.JButton();
         btnEliminarSeccion = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
+        jLabel28 = new javax.swing.JLabel();
+        jLabel29 = new javax.swing.JLabel();
+        jLabel30 = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        jLabel32 = new javax.swing.JLabel();
+        jLabel33 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        jLabel35 = new javax.swing.JLabel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        cbxSeccionNota = new javax.swing.JComboBox<>();
+        cbxAlumnoNota = new javax.swing.JComboBox<>();
+        cbxPC1 = new javax.swing.JComboBox<>();
+        cbxPC2 = new javax.swing.JComboBox<>();
+        cbxPC3 = new javax.swing.JComboBox<>();
+        cbxPA = new javax.swing.JComboBox<>();
+        cbxEF = new javax.swing.JComboBox<>();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jLabel27 = new javax.swing.JLabel();
+        cbxProfesorNota = new javax.swing.JComboBox<>();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -917,7 +946,7 @@ public final class Administrador extends javax.swing.JFrame {
         jLabel23.setFont(new java.awt.Font("Georgia", 1, 28)); // NOI18N
         jLabel23.setText("REGISTRO DE SECCIONES");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblSeccion.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -936,7 +965,12 @@ public final class Administrador extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane5.setViewportView(jTable1);
+        tblSeccion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblSeccionMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(tblSeccion);
 
         cbxCursoSeccion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -951,6 +985,11 @@ public final class Administrador extends javax.swing.JFrame {
         jLabel26.setText("Profesor: ");
 
         btnRegistroSeccion.setText("Registrar");
+        btnRegistroSeccion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistroSeccionActionPerformed(evt);
+            }
+        });
 
         btnLimpiarSeccion.setText("Limpiar");
         btnLimpiarSeccion.addActionListener(new java.awt.event.ActionListener() {
@@ -960,8 +999,18 @@ public final class Administrador extends javax.swing.JFrame {
         });
 
         btnModificarSeccion.setText("Modificar");
+        btnModificarSeccion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModificarSeccionActionPerformed(evt);
+            }
+        });
 
         btnEliminarSeccion.setText("Eliminar");
+        btnEliminarSeccion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarSeccionActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -1056,18 +1105,182 @@ public final class Administrador extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Registro", jPanel2);
 
+        jLabel28.setFont(new java.awt.Font("Georgia", 1, 28)); // NOI18N
+        jLabel28.setText("NOTAS ACADEMICAS");
+
+        jLabel29.setText("Practica Calificada 1:");
+
+        jLabel30.setText("Practica Calificada 2:");
+
+        jLabel31.setText("Practica Calificada 3:");
+
+        jLabel32.setText("Participacion");
+
+        jLabel33.setText("Examen Final");
+
+        jLabel34.setText("Seccion: ");
+
+        jLabel35.setText("Alumno: ");
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Codigo Seccion", "Profesor", "Alumno", "PC1", "PC2", "PC3", "PA", "EF", "Promedio Final", "Estado", "Fecha Creacion"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, false, false, false, false, false, false, true, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane6.setViewportView(jTable1);
+
+        cbxSeccionNota.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione un Profesor" }));
+        cbxSeccionNota.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxSeccionNotaActionPerformed(evt);
+            }
+        });
+
+        cbxAlumnoNota.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione una Seccion" }));
+
+        cbxPC1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione", "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20" }));
+
+        cbxPC2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione", "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20" }));
+
+        cbxPC3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione", "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20" }));
+
+        cbxPA.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione", "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20" }));
+
+        cbxEF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione", "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20" }));
+
+        jButton1.setText("Registrar");
+
+        jButton2.setText("Limpiar");
+
+        jButton3.setText("Modificar");
+
+        jButton4.setText("Eliminar");
+
+        jLabel27.setText("Profesor: ");
+
+        cbxProfesorNota.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbxProfesorNota.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cbxProfesorNotaMouseClicked(evt);
+            }
+        });
+        cbxProfesorNota.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxProfesorNotaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1565, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel28)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel35)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel30)
+                                .addComponent(jLabel29))
+                            .addComponent(jLabel31)
+                            .addComponent(jLabel32)
+                            .addComponent(jLabel33)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel27)
+                                .addComponent(jLabel34)))
+                        .addGap(37, 37, 37)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cbxProfesorNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(cbxEF, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cbxPA, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cbxPC3, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cbxPC1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cbxAlumnoNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbxSeccionNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbxPC2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 1113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 582, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel27)
+                            .addComponent(cbxProfesorNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(22, 22, 22)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(cbxSeccionNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel34))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel35)
+                            .addComponent(cbxAlumnoNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel29)
+                            .addComponent(cbxPC1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(22, 22, 22)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel30)
+                            .addComponent(cbxPC2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel31)
+                            .addComponent(cbxPC3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(25, 25, 25)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel32)
+                            .addComponent(cbxPA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(17, 17, 17)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel33)
+                            .addComponent(cbxEF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(37, 37, 37)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton1)
+                            .addComponent(jButton2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton3)
+                            .addComponent(jButton4))
+                        .addGap(35, 35, 35))))
         );
 
-        jTabbedPane1.addTab("tab3", jPanel3);
+        jTabbedPane1.addTab("Notas", jPanel3);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -1152,6 +1365,7 @@ public final class Administrador extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Curso eliminado exitosamente.");
                 listarCursos();
                 cargarCursosMatricula();
+                cargarCursosSeccion();
                 LimpiarCamposCursos();
             }
         }
@@ -1176,6 +1390,7 @@ public final class Administrador extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Curso modificado exitosamente.");
                     listarCursos();
                     cargarCursosMatricula();
+                    cargarCursosSeccion();
                     LimpiarCamposCursos();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al modificar. Revise el valor ingresado.");
@@ -1205,6 +1420,7 @@ public final class Administrador extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Curso registrado correctamente.");
                     listarCursos();
                     cargarCursosMatricula();
+                    cargarCursosSeccion();
                     LimpiarCamposCursos();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al registrar. Revise si el código ya existe.");
@@ -1245,6 +1461,7 @@ public final class Administrador extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Periodo eliminado exitosamente.");
                 listarPeriodoAcademico();
                 cargarPeriodosMatricula();
+                cargarPeriodosSeccion();
                 LimpiarCamposPeriodos();
             }
         }
@@ -1275,6 +1492,7 @@ public final class Administrador extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Periodo modificado exitosamente.");
                 listarPeriodoAcademico();
                 cargarPeriodosMatricula();
+                cargarPeriodosSeccion();
                 LimpiarCamposPeriodos();
             } else {
                 JOptionPane.showMessageDialog(this, "Error al modificar. Revise fechas o código duplicado.");
@@ -1295,13 +1513,14 @@ public final class Administrador extends javax.swing.JFrame {
             boolean activo = cbxEstadoPeriodoAcademico.getSelectedItem().toString().equalsIgnoreCase("activo");
 
             PeriodoAcademico nuevoPeriodo = new PeriodoAcademico(codigo, fechaInicio, fechaFin, activo);
-            
+
             try{
                 Pdao.registrarPeriodo(nuevoPeriodo);
                 JOptionPane.showMessageDialog(this, "Periodo Registrado correctamente.");
 
                 listarPeriodoAcademico();
                 cargarPeriodosMatricula();
+                cargarPeriodosSeccion();
                 LimpiarCamposPeriodos();
             }catch(HeadlessException e){
                 JOptionPane.showMessageDialog(this, "Error al registrar. Revise formato de fechas o código duplicado.");
@@ -1355,6 +1574,7 @@ public final class Administrador extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Alumno eliminado exitosamente");
                 listarUsuarios();
                 cargarAlumnosMatricula();
+                cargarProfesorSeccion();
                 LimpiarCamposUsuarios();
             } else {
                 JOptionPane.showMessageDialog(null, "Error al eliminar alumno. Verifique que no tenga matrículas asociadas");
@@ -1397,6 +1617,7 @@ public final class Administrador extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "Usuario modificado exitosamente");
                     listarUsuarios();
                     cargarAlumnosMatricula();
+                    cargarProfesorSeccion();
                     LimpiarCamposUsuarios();
                 } else {
                     JOptionPane.showMessageDialog(null, "Error al modificar Usuario");
@@ -1432,6 +1653,7 @@ public final class Administrador extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Usuario Registrado correctamente.");
                 listarUsuarios();
                 cargarAlumnosMatricula();
+                cargarProfesorSeccion();
                 LimpiarCamposUsuarios();
             } else {
                 JOptionPane.showMessageDialog(this, """
@@ -1452,43 +1674,128 @@ public final class Administrador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtDNIActionPerformed
 
-    private void btnRegistroMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistroMatriculaActionPerformed
-        if (!validarCamposMatricula()) { 
-            return; 
+    private void tblUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblUsuariosMouseClicked
+        int fila = tblUsuarios.getSelectedRow();
+        if (fila >= 0) {
+            String correo = tblUsuarios.getValueAt(fila, 1).toString();
+            obtenerDatosUsuarioPorCorreo(correo);
+            txtCorreo.setText(correo);
+            txtContrasena.setText(tblUsuarios.getValueAt(fila, 2).toString());
+            txtNombres.setText(tblUsuarios.getValueAt(fila, 3).toString());
+            txtDNI.setText(tblUsuarios.getValueAt(fila, 4).toString());
+            cbxRol.setSelectedItem(tblUsuarios.getValueAt(fila, 5).toString());
+            cbxEstado.setSelectedItem(tblUsuarios.getValueAt(fila, 6).toString());
+            txtCodigoUsuario.setText(tblUsuarios.getValueAt(fila,0).toString());
+        }
+    }//GEN-LAST:event_tblUsuariosMouseClicked
+
+    private void btnEliminarSeccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarSeccionActionPerformed
+        if (txtCodSeccion.equals("")) {
+            JOptionPane.showMessageDialog(this, "Seleccione una Seccion de la tabla para eliminar.");
+            return;
         }
 
-        String nombreAlumno = (String) cbxAlumnoMatricula.getSelectedItem();
-        String nombreCurso = (String) cbxCursoMatricula.getSelectedItem();
-        String codigoPeriodo = (String) cbxPeriodoMatricula.getSelectedItem();
+        String codigoSeccion = txtCodSeccion.getText();
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de eliminar la seccion " + codigoSeccion + "? Esta acción es irreversible.",
+            "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (Sdao.eliminarSeccion(codigoSeccion)) {
+                JOptionPane.showMessageDialog(this, "Seccion eliminada exitosamente.");
+                listarSecciones();
+                LimpiarCamposSeccion();
+            }
+    }//GEN-LAST:event_btnEliminarSeccionActionPerformed
+}
+    
+    private void btnLimpiarSeccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarSeccionActionPerformed
+        cbxPeriodoSeccion.setEnabled(true);
+        LimpiarCamposSeccion();
+    }//GEN-LAST:event_btnLimpiarSeccionActionPerformed
+
+    private void btnRegistroSeccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistroSeccionActionPerformed
+        if (!validarCamposSeccion()) {
+            return;
+        }
+
+        String nombreProfesor = (String) cbxProfesorSeccion.getSelectedItem();
+        String nombreCurso = (String) cbxCursoSeccion.getSelectedItem();
+        String codigoPeriodo = (String) cbxPeriodoSeccion.getSelectedItem();
 
         try {
-            int idAlumno = Udao.obtenerIdAlumnoPorNombre(nombreAlumno);
+            int idProfesor = Udao.obtenerIdProfesorPorNombre(nombreProfesor);
             int idCurso = Cdao.obtenerIdCursoPorNombre(nombreCurso);
             int idPeriodo = Pdao.obtenerIdPeriodoPorCodigo(codigoPeriodo);
 
-            Matricula ma = new Matricula(idAlumno, idCurso, idPeriodo);
-            
-            if (idAlumno == -1 || idCurso == -1 || idPeriodo == -1) {
+            Seccion se = new Seccion(idProfesor, idCurso, idPeriodo);
+
+            if (idProfesor == -1 || idCurso == -1 || idPeriodo == -1) {
                 JOptionPane.showMessageDialog(this, "Error al obtener IDs de selección. Verifique que los datos existan.", "Error de ID", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             if (!Pdao.esPeriodoActivo(idPeriodo)) {
-                JOptionPane.showMessageDialog(this, "ERROR: No se puede registrar la matrícula. El periodo académico seleccionado (" + codigoPeriodo + ") está inactivo.", "Restricción de Período", JOptionPane.ERROR_MESSAGE);
-                return; 
+                JOptionPane.showMessageDialog(this, "ERROR: No se puede registrar la seccion. El periodo académico seleccionado (" + codigoPeriodo + ") está inactivo.", "Restricción de Período", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
-            if (Mdao.registrarMatricula(ma)) {
-                JOptionPane.showMessageDialog(this, "Matrícula registrada con éxito.");
-                listarMatriculas();
-                LimpiarCamposMatricula();
+            if (Sdao.registrarSeccion(se)) {
+                JOptionPane.showMessageDialog(this, "Seccion registrada con éxito.");
+                listarSecciones();
+                LimpiarCamposSeccion();
             } else {
-                JOptionPane.showMessageDialog(this, "Error: La matrícula no se pudo registrar. Ya existe una matrícula para este alumno, curso y período.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error: La seccion no se pudo registrar. Ya existe una matrícula para este alumno, curso y período.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error de base de datos al registrar: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnRegistroMatriculaActionPerformed
+    }//GEN-LAST:event_btnRegistroSeccionActionPerformed
+
+    private void tblSeccionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSeccionMouseClicked
+        cbxPeriodoSeccion.setEnabled(false);
+        int fila = tblSeccion.getSelectedRow();
+        if (fila >= 0) {
+            String codigo = tblSeccion.getValueAt(fila, 0).toString();
+            obtenerDatosSeccionPorCodigo(codigo);
+            txtCodSeccion.setText(codigo);
+            cbxPeriodoSeccion.setSelectedItem(tblSeccion.getValueAt(fila, 3).toString());
+            cbxProfesorSeccion.setSelectedItem(tblSeccion.getValueAt(fila, 1).toString());
+            cbxCursoSeccion.setSelectedItem(tblSeccion.getValueAt(fila, 2).toString());
+        }
+    }//GEN-LAST:event_tblSeccionMouseClicked
+
+    private void txtFiltroMatriculaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFiltroMatriculaKeyReleased
+        buscarMatricula(txtFiltroMatricula.getText());
+    }//GEN-LAST:event_txtFiltroMatriculaKeyReleased
+
+    private void cbxPeriodoMatriculaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cbxPeriodoMatriculaMouseClicked
+
+    }//GEN-LAST:event_cbxPeriodoMatriculaMouseClicked
+
+    private void btnEliminarMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarMatriculaActionPerformed
+        if (txtCodMatricula.equals("")) {
+            JOptionPane.showMessageDialog(this, "Seleccione una Matrícula de la tabla para eliminar.");
+            return;
+        }
+
+        String codigoMatricula = txtCodMatricula.getText(); // Muestra el código legible para el usuario
+
+        // 2. Pedir confirmación al usuario
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de eliminar la matrícula " + codigoMatricula + "? Esta acción es irreversible.",
+            "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            // 3. Llamar al DAO para eliminar usando el ID interno
+            if (Mdao.eliminarMatricula(codigoMatricula)) {
+                JOptionPane.showMessageDialog(this, "Matrícula eliminada exitosamente.");
+                listarMatriculas();
+                LimpiarCamposMatricula();
+            }
+        }
+    }//GEN-LAST:event_btnEliminarMatriculaActionPerformed
 
     private void btnModificarMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarMatriculaActionPerformed
         if (txtCodMatricula.equals("")) {
@@ -1496,7 +1803,7 @@ public final class Administrador extends javax.swing.JFrame {
             return;
         }
 
-        if (!validarCamposMatricula()) { 
+        if (!validarCamposMatricula()) {
             return;
         }
 
@@ -1507,11 +1814,11 @@ public final class Administrador extends javax.swing.JFrame {
 
         try {
             String codMatricula = txtCodMatricula.getText();
-            int nuevoIdAlumno = Udao.obtenerIdAlumnoPorNombre(nombreAlumno); 
+            int nuevoIdAlumno = Udao.obtenerIdAlumnoPorNombre(nombreAlumno);
             int nuevoIdCurso = Cdao.obtenerIdCursoPorNombre(nombreCurso);
             int nuevoIdPeriodo = Pdao.obtenerIdPeriodoPorCodigo(codigoPeriodo);
             Matricula ma = new Matricula(codMatricula, nuevoIdAlumno, nuevoIdCurso,nuevoIdPeriodo);
-            
+
             if (nuevoIdAlumno == -1 || nuevoIdCurso == -1 || nuevoIdPeriodo == -1) {
                 JOptionPane.showMessageDialog(this, "Error al obtener IDs del nuevo Alumno, Curso o Periodo.");
                 return;
@@ -1532,52 +1839,48 @@ public final class Administrador extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnModificarMatriculaActionPerformed
 
-    private void btnEliminarMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarMatriculaActionPerformed
-        if (txtCodMatricula.equals("")) {
-            JOptionPane.showMessageDialog(this, "Seleccione una Matrícula de la tabla para eliminar.");
-            return;
-        }
-
-        String codigoMatricula = txtCodMatricula.getText(); // Muestra el código legible para el usuario
-        
-        // 2. Pedir confirmación al usuario
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Está seguro de eliminar la matrícula " + codigoMatricula + "? Esta acción es irreversible.",
-            "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            // 3. Llamar al DAO para eliminar usando el ID interno
-            if (Mdao.eliminarMatricula(codigoMatricula)) {
-                JOptionPane.showMessageDialog(this, "Matrícula eliminada exitosamente.");
-                listarMatriculas();
-                LimpiarCamposMatricula();
-            } 
-        }
-    }//GEN-LAST:event_btnEliminarMatriculaActionPerformed
-
-    private void cbxPeriodoMatriculaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cbxPeriodoMatriculaMouseClicked
-
-    }//GEN-LAST:event_cbxPeriodoMatriculaMouseClicked
-
     private void btnLimpiarMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarMatriculaActionPerformed
         cbxPeriodoMatricula.setEnabled(true);
         LimpiarCamposMatricula();
     }//GEN-LAST:event_btnLimpiarMatriculaActionPerformed
 
-    private void tblUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblUsuariosMouseClicked
-        int fila = tblUsuarios.getSelectedRow();
-        if (fila >= 0) {
-            String correo = tblUsuarios.getValueAt(fila, 1).toString();
-            obtenerDatosUsuarioPorCorreo(correo);
-            txtCorreo.setText(correo);
-            txtContrasena.setText(tblUsuarios.getValueAt(fila, 2).toString());
-            txtNombres.setText(tblUsuarios.getValueAt(fila, 3).toString());
-            txtDNI.setText(tblUsuarios.getValueAt(fila, 4).toString());
-            cbxRol.setSelectedItem(tblUsuarios.getValueAt(fila, 5).toString());
-            cbxEstado.setSelectedItem(tblUsuarios.getValueAt(fila, 6).toString());
-            txtCodigoUsuario.setText(tblUsuarios.getValueAt(fila,0).toString());
+    private void btnRegistroMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistroMatriculaActionPerformed
+        if (!validarCamposMatricula()) {
+            return;
         }
-    }//GEN-LAST:event_tblUsuariosMouseClicked
+
+        String nombreAlumno = (String) cbxAlumnoMatricula.getSelectedItem();
+        String nombreCurso = (String) cbxCursoMatricula.getSelectedItem();
+        String codigoPeriodo = (String) cbxPeriodoMatricula.getSelectedItem();
+
+        try {
+            int idAlumno = Udao.obtenerIdAlumnoPorNombre(nombreAlumno);
+            int idCurso = Cdao.obtenerIdCursoPorNombre(nombreCurso);
+            int idPeriodo = Pdao.obtenerIdPeriodoPorCodigo(codigoPeriodo);
+
+            Matricula ma = new Matricula(idAlumno, idCurso, idPeriodo);
+
+            if (idAlumno == -1 || idCurso == -1 || idPeriodo == -1) {
+                JOptionPane.showMessageDialog(this, "Error al obtener IDs de selección. Verifique que los datos existan.", "Error de ID", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!Pdao.esPeriodoActivo(idPeriodo)) {
+                JOptionPane.showMessageDialog(this, "ERROR: No se puede registrar la matrícula. El periodo académico seleccionado (" + codigoPeriodo + ") está inactivo.", "Restricción de Período", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (Mdao.registrarMatricula(ma)) {
+                JOptionPane.showMessageDialog(this, "Matrícula registrada con éxito.");
+                listarMatriculas();
+                LimpiarCamposMatricula();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error: La matrícula no se pudo registrar. Ya existe una matrícula para este alumno, curso y período.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error de base de datos al registrar: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnRegistroMatriculaActionPerformed
 
     private void tblMatriculaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMatriculaMouseClicked
         cbxPeriodoMatricula.setEnabled(false);
@@ -1592,13 +1895,69 @@ public final class Administrador extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tblMatriculaMouseClicked
 
-    private void txtFiltroMatriculaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFiltroMatriculaKeyReleased
-        buscarMatricula(txtFiltroMatricula.getText());
-    }//GEN-LAST:event_txtFiltroMatriculaKeyReleased
+    private void btnModificarSeccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarSeccionActionPerformed
+                if (txtCodSeccion.equals("")) {
+            JOptionPane.showMessageDialog(this, "Seleccione una Seccion de la tabla para modificar.");
+            return;
+        }
 
-    private void btnLimpiarSeccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarSeccionActionPerformed
-        LimpiarCamposSeccion();
-    }//GEN-LAST:event_btnLimpiarSeccionActionPerformed
+        if (!validarCamposSeccion()) {
+            return;
+        }
+
+        String nombreProfesor = cbxProfesorSeccion.getSelectedItem().toString();
+        String nombreCurso = cbxCursoSeccion.getSelectedItem().toString();
+        String codigoPeriodo = cbxPeriodoSeccion.getSelectedItem().toString();
+
+        try {
+            String codSeccion = txtCodSeccion.getText();
+            int nuevoIdProfesor = Udao.obtenerIdProfesorPorNombre(nombreProfesor);
+            int nuevoIdCurso = Cdao.obtenerIdCursoPorNombre(nombreCurso);
+            int nuevoIdPeriodo = Pdao.obtenerIdPeriodoPorCodigo(codigoPeriodo);
+            Seccion se = new Seccion(codSeccion, nuevoIdProfesor, nuevoIdCurso,nuevoIdPeriodo);
+
+            if (nuevoIdProfesor == -1 || nuevoIdCurso == -1 || nuevoIdPeriodo == -1) {
+                JOptionPane.showMessageDialog(this, "Error al obtener IDs del nuevo Profesor, Curso o Periodo.");
+                return;
+            }
+
+            if (Sdao.modificarSeccion(se)) {
+                JOptionPane.showMessageDialog(this, "Seccion modificada exitosamente.");
+                listarSecciones();
+                LimpiarCamposSeccion();
+            } else {
+
+                JOptionPane.showMessageDialog(this, "Error al modificar la seccion. Verifique que la combinación no exista.");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error de base de datos al modificar: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnModificarSeccionActionPerformed
+
+    private void cbxProfesorNotaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cbxProfesorNotaMouseClicked
+    }//GEN-LAST:event_cbxProfesorNotaMouseClicked
+
+    private void cbxProfesorNotaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxProfesorNotaActionPerformed
+        String profesor = (String) cbxProfesorNota.getSelectedItem();
+        if (profesor != null && !profesor.equals("Seleccione") && !profesor.trim().isEmpty()) {
+            cargarSeccionesPorProfesor(profesor);
+        } else {
+            cbxSeccionNota.removeAllItems();
+            cbxSeccionNota.addItem("Seleccione");
+            cbxAlumnoNota.removeAllItems();
+            cbxAlumnoNota.addItem("Seleccione");
+        }
+    }//GEN-LAST:event_cbxProfesorNotaActionPerformed
+
+    private void cbxSeccionNotaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxSeccionNotaActionPerformed
+        String seccion =(String) cbxSeccionNota.getSelectedItem() ;
+        if (seccion != null && !seccion.equals("Seleccione")&& !seccion.trim().isEmpty()) {
+            cargarAlumnosPorSeccion(seccion);
+        } else {
+            cbxAlumnoNota.removeAllItems();
+            cbxAlumnoNota.addItem("Seleccione");
+        }
+    }//GEN-LAST:event_cbxSeccionNotaActionPerformed
 
 
     
@@ -2114,7 +2473,7 @@ public final class Administrador extends javax.swing.JFrame {
     }
     
     void listarSecciones(){
-        modeloSeccion = (DefaultTableModel) tblMatricula.getModel();
+        modeloSeccion = (DefaultTableModel) tblSeccion.getModel();
         modeloSeccion.setRowCount(0);
         
         ResultSet rs = null;
@@ -2133,7 +2492,7 @@ public final class Administrador extends javax.swing.JFrame {
                 fila[6] = rs.getInt("idProfesor");      
                 fila[7] = rs.getInt("idCursos");        
 
-                modeloMatricula.addRow(fila);
+                modeloSeccion.addRow(fila);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al listar matrículas: " + e.getMessage());
@@ -2146,6 +2505,138 @@ public final class Administrador extends javax.swing.JFrame {
             }
         }
     }
+    
+    boolean validarCamposSeccion() {
+        if (cbxPeriodoSeccion.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Ingrese el Periodo Academico");
+            cbxPeriodoSeccion.requestFocus();
+            return false;
+        }
+        if (cbxProfesorSeccion.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Ingrese el Profesor a Registrar");
+            cbxProfesorSeccion.requestFocus();
+            return false;
+        }
+        if (cbxCursoSeccion.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Ingrese el Curso a Registrar");
+            cbxCursoSeccion.requestFocus();
+            return false;
+        }
+        return true;
+    }
+   
+    void cargarProfesorSeccion(){
+        cbxProfesorSeccion.removeAllItems();
+        cbxProfesorSeccion.addItem("Seleccione");
+        try (ResultSet rs = Udao.listarProfesorParaCombo()) {
+            while (rs.next()) {
+                cbxProfesorSeccion.addItem(rs.getString("nombre_completo")); 
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar profesor para seccion: " + e.getMessage());
+        }    
+    }
+    
+    void cargarCursosSeccion(){
+        cbxCursoSeccion.removeAllItems();
+        cbxCursoSeccion.addItem("Seleccione");
+        try (ResultSet rs = Cdao.listarCursosParaCombo()) {
+            while (rs.next()) {
+
+                cbxCursoSeccion.addItem(rs.getString("nombre"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar cursos para seccion: " + e.getMessage());
+        }
+    }
+    
+    void cargarPeriodosSeccion(){
+        cbxPeriodoSeccion.removeAllItems();
+        cbxPeriodoSeccion.addItem("Seleccione");
+        try (ResultSet rs = Pdao.listarPeriodosParaCombo()) { 
+            while (rs.next()) {
+                // Se añade el codigoPeriodo, como solicitaste
+                cbxPeriodoSeccion.addItem(rs.getString("codigoPeriodo")); 
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar periodos para seccion: " + e.getMessage());
+        }
+    }
+    
+    private void obtenerDatosSeccionPorCodigo(String correo) {
+        try {
+            rs = Sdao.listarSecciones();
+            while (rs.next()) {
+                if (rs.getString("codigoSeccion").equals(correo)) {
+                    rs.close();
+                    return;
+                }
+            }
+            rs.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al obtener datos: " + e.getMessage());
+        }
+    }
+    
+    
+    
+    //Metodos para Gestion de Notas
+    
+    
+    void cargarProfesoresNota(){
+        cbxProfesorNota.removeAllItems();
+        cbxProfesorNota.addItem("Seleccione");
+        try (ResultSet rs = Udao.listarProfesorParaCombo()) {
+            while (rs.next()) {
+                cbxProfesorNota.addItem(rs.getString("nombre_completo")); 
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar profesor para seccion: " + e.getMessage());
+        }  
+    }
+   
+    void cargarSeccionesPorProfesor(String nombreProfesor) {
+        cbxSeccionNota.removeAllItems();
+        cbxSeccionNota.addItem("Seleccione");
+
+        try (ResultSet rs = Sdao.listarSeccionesPorProfesor(nombreProfesor)) {
+            boolean hay = false;
+            while (rs.next()) {
+                hay = true;
+                String texto = rs.getString("codigoSeccion")  ;
+
+                cbxSeccionNota.addItem(texto);
+            }
+            if (!hay) {
+                cbxSeccionNota.removeAllItems();
+                cbxSeccionNota.addItem("No tiene secciones asignadas");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar secciones: " + ex.getMessage());
+        }
+    }
+    
+    private void cargarAlumnosPorSeccion(String seccion) {
+        cbxAlumnoNota.removeAllItems();
+        cbxAlumnoNota.addItem("Seleccione");
+
+        try (ResultSet rs = Udao.listarAlumnosPorCodigoSeccion(seccion)) {
+            boolean hay = false;
+            while (rs.next()) {
+                hay = true;
+                String nombre = rs.getString("nombre_completo");
+                cbxAlumnoNota.addItem(nombre);
+            }
+            if (!hay) {
+                cbxAlumnoNota.removeAllItems();
+                cbxAlumnoNota.addItem("Sin alumnos matriculados");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar alumnos: " + ex.getMessage());
+        }
+    }
+    
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -2190,15 +2681,27 @@ public final class Administrador extends javax.swing.JFrame {
     private javax.swing.JButton btnRegistroPeriodo;
     private javax.swing.JButton btnRegistroSeccion;
     private javax.swing.JComboBox<String> cbxAlumnoMatricula;
+    private javax.swing.JComboBox<String> cbxAlumnoNota;
     private javax.swing.JComboBox<String> cbxCiclo;
     private javax.swing.JComboBox<String> cbxCursoMatricula;
     private javax.swing.JComboBox<String> cbxCursoSeccion;
+    private javax.swing.JComboBox<String> cbxEF;
     private javax.swing.JComboBox<String> cbxEstado;
     private javax.swing.JComboBox<String> cbxEstadoPeriodoAcademico;
+    private javax.swing.JComboBox<String> cbxPA;
+    private javax.swing.JComboBox<String> cbxPC1;
+    private javax.swing.JComboBox<String> cbxPC2;
+    private javax.swing.JComboBox<String> cbxPC3;
     private javax.swing.JComboBox<String> cbxPeriodoMatricula;
     private javax.swing.JComboBox<String> cbxPeriodoSeccion;
+    private javax.swing.JComboBox<String> cbxProfesorNota;
     private javax.swing.JComboBox<String> cbxProfesorSeccion;
     private javax.swing.JComboBox<String> cbxRol;
+    private javax.swing.JComboBox<String> cbxSeccionNota;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -2218,7 +2721,16 @@ public final class Administrador extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -2243,6 +2755,7 @@ public final class Administrador extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTabbedPane jTabbedPane3;
@@ -2250,6 +2763,7 @@ public final class Administrador extends javax.swing.JFrame {
     private javax.swing.JTable tblCurso;
     private javax.swing.JTable tblMatricula;
     private javax.swing.JTable tblPeriodo;
+    private javax.swing.JTable tblSeccion;
     private javax.swing.JTable tblUsuarios;
     private javax.swing.JTextField txtBuscaUsuarios;
     private javax.swing.JTextField txtCodCurso;
