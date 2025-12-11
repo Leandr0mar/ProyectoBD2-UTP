@@ -183,5 +183,45 @@ public class SeccionDAO {
         PreparedStatement ps = co.getConnection().prepareStatement(sql);
         ps.setString(1, nombreProfesor);
         return ps.executeQuery();
-}
+    }
+    
+    public ResultSet listarSeccionPorCurso(String codigoSeccion) throws SQLException {
+        String sql = """
+        SELECT 
+            s.codigoSeccion,
+            c.nombre AS curso_nombre,
+            pa.codigoPeriodo,
+            u.nombre_completo AS profesor
+        FROM secciones s
+        JOIN cursos c ON s.idCursos = c.idCursos
+        JOIN periodos_academicos pa ON s.idPeriodoAcademico = pa.idPeriodoAcademico
+        JOIN usuarios u ON s.idProfesor = u.idUsuarios
+        WHERE c.nombre =?
+          AND pa.activo = true
+        ORDER BY pa.codigoPeriodo DESC, c.nombre, s.codigoSeccion;
+        """;
+
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        ps.setString(1, codigoSeccion.trim());
+        return ps.executeQuery();
+    }
+        
+    public int obtenerIdSeccionPorIdProfesor(int idProfesor,int idCurso,int idPeriodo) throws SQLException {
+        String sql = "SELECT idSeccion FROM secciones WHERE idProfesor = ? AND idCursos=? and idPeriodoAcademico=? ";
+        try (Connection cn = co.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, idProfesor);
+            ps.setInt(2, idCurso);
+            ps.setInt(3, idPeriodo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idSeccion");
+                }
+            }
+        }
+        return -1;
+    }
+    
+    
 }

@@ -1,3 +1,5 @@
+--Nombre de Base de datos : ProyectoBD2
+
 CREATE TABLE usuarios (
     idUsuarios SERIAL PRIMARY KEY,
     codigo VARCHAR(20) UNIQUE NOT NULL,
@@ -52,17 +54,16 @@ CREATE TABLE secciones (
     fecha_seccion TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     UNIQUE(idCursos, idPeriodoAcademico, codigoSeccion)
 );
-select * from secciones
 
 CREATE TABLE notas (
     idNotas SERIAL PRIMARY KEY,
     idMatriculas INT NOT NULL REFERENCES matriculas(idMatriculas),
     idseccion INT NOT NULL REFERENCES secciones(idseccion),
-    PC1 DECIMAL(4,2) CHECK (PC1 BETWEEN 0 AND 20),
-    PC2 DECIMAL(4,2) CHECK (PC2 BETWEEN 0 AND 20),
-    PC3 DECIMAL(4,2) CHECK (PC3 BETWEEN 0 AND 20),
-    PA DECIMAL(4,2) CHECK (PA BETWEEN 0 AND 20),
-    EF DECIMAL(4,2) CHECK (EF BETWEEN 0 AND 20),
+    PC1 DECIMAL(4,2) DEFAULT 0.00 CHECK (PC1 BETWEEN 0 AND 20),
+    PC2 DECIMAL(4,2) DEFAULT 0.00 CHECK (PC2 BETWEEN 0 AND 20),
+    PC3 DECIMAL(4,2) DEFAULT 0.00 CHECK (PC3 BETWEEN 0 AND 20),
+    PA DECIMAL(4,2) DEFAULT 0.00 CHECK (PA BETWEEN 0 AND 20),
+    EF DECIMAL(4,2) DEFAULT 0.00 CHECK (EF BETWEEN 0 AND 20),
     
     promedio_final DECIMAL(4,2) GENERATED ALWAYS AS (
         ROUND((
@@ -110,26 +111,24 @@ CREATE TABLE certificados (
 
 -- Funciones y Triggers y Secuencias
 
--- =============================================
--- SECUENCIAS POR TABLA (una por cada una)
--- =============================================
 CREATE SEQUENCE seq_usuarios      START 1;
 CREATE SEQUENCE seq_cursos        START 1;
 CREATE SEQUENCE seq_matriculas    START 1;
 CREATE SEQUENCE seq_secciones     START 1;
 CREATE SEQUENCE seq_certificados  START 1;
+
 -- =============================================
 -- FUNCIÓN REUTILIZABLE PARA GENERAR CÓDIGO
 -- =============================================
 CREATE OR REPLACE FUNCTION generar_codigo()
 RETURNS TRIGGER AS $$
 DECLARE
-    tipo_tabla CHAR(1) := TG_ARGV[0]; -- Lee el argumento pasado por el TRIGGER
+    tipo_tabla CHAR(1) := TG_ARGV[0]; 
     anio_actual CHAR(4) := to_char(CURRENT_DATE, 'YYYY');
     secuencial  TEXT;
     nuevo_codigo TEXT;
 BEGIN
-    -- Generamos el número con 5 dígitos (00001, 00002...)
+    
     secuencial := LPAD(nextval('seq_' || 
         CASE tipo_tabla
             WHEN 'U' THEN 'usuarios'
@@ -141,7 +140,7 @@ BEGIN
 
     nuevo_codigo := tipo_tabla || '-' || anio_actual || '-' || secuencial;
 
-    -- Asignamos al campo correspondiente en la nueva fila (NEW)
+ 
     CASE tipo_tabla
         WHEN 'U' THEN NEW.codigo := nuevo_codigo;
         WHEN 'C' THEN NEW.codigoCurso := nuevo_codigo;
@@ -153,6 +152,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- =============================================
 -- TRIGGERS POR TABLA
@@ -196,4 +196,3 @@ CREATE TRIGGER trg_codigo_certificado
     EXECUTE FUNCTION generar_codigo('T');
 
 
-			

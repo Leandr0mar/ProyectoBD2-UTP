@@ -7,10 +7,12 @@ public class Matricula {
     private String nombreAlumno;
     private String nombreCurso;
     private String codigoPeriodo;
-
+    private String nombreProfesor;
+    
     private int alumno_id;
     private int curso_id;
     private int periodo_id;
+    private int seccion_id;
 
     public Matricula(int alumno_id, int curso_id, int periodo_id) {
         this.alumno_id = alumno_id;
@@ -25,6 +27,22 @@ public class Matricula {
         this.periodo_id = periodo_id;
     }
 
+    public Matricula(String codigoMatricula, int alumno_id, int curso_id, int periodo_id, int seccion_id) {
+        this.codigoMatricula = codigoMatricula;
+        this.alumno_id = alumno_id;
+        this.curso_id = curso_id;
+        this.periodo_id = periodo_id;
+        this.seccion_id = seccion_id;
+    }
+
+    public Matricula(int alumno_id, int curso_id, int periodo_id, int seccion_id) {
+        this.alumno_id = alumno_id;
+        this.curso_id = curso_id;
+        this.periodo_id = periodo_id;
+        this.seccion_id = seccion_id;
+    }
+
+    
     
     public Matricula(int idMatricula, String codigoMatricula, String nombreAlumno, String nombreCurso, String codigoPeriodo, int alumno_id, int curso_id, int periodo_id) {
         this.idMatricula = idMatricula;
@@ -66,4 +84,14 @@ public class Matricula {
     public int getPeriodo_id() { 
         return periodo_id; 
     }
+
+    public String getNombreProfesor() {
+        return nombreProfesor;
+    }
+
+    public int getSeccion_id() {
+        return seccion_id;
+    }
+    
+    
 }

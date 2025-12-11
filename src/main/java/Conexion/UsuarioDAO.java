@@ -221,6 +221,7 @@ public class UsuarioDAO {
         return -1;
     }
     
+    
     public int obtenerIdProfesorPorNombre(String nombreCompleto) throws SQLException {
         String sql = "SELECT idUsuarios FROM usuarios WHERE nombre_completo = ? AND rol = 'profesor'";
         try (Connection cn = co.getConnection();
@@ -259,24 +260,44 @@ public class UsuarioDAO {
     
     public ResultSet listarAlumnosPorCodigoSeccion(String codigoSeccion) throws SQLException {
         String sql = """
-        SELECT DISTINCT 
-               u.idUsuarios AS idAlumno, 
-               u.nombre_completo
-        FROM usuarios u
-        JOIN matriculas m ON u.idUsuarios = m.alumno_id
-        JOIN secciones s ON m.curso_id = s.idCursos 
-                        AND m.periodo_id = s.idPeriodoAcademico
-        JOIN periodos_academicos pa ON s.idPeriodoAcademico = pa.idPeriodoAcademico
-        WHERE s.codigoSeccion = ?
-          AND u.rol = 'alumno'
-          AND u.estado = true
-          AND pa.activo = true
-        ORDER BY u.nombre_completo
-        """;
+            SELECT DISTINCT 
+                   u.idUsuarios AS idAlumno, 
+                   u.nombre_completo
+            FROM usuarios u
+            JOIN matriculas m ON u.idUsuarios = m.alumno_id AND u.rol = 'alumno' AND u.estado = true
+            JOIN secciones s ON m.curso_id = s.idCursos 
+                            AND m.periodo_id = s.idPeriodoAcademico
+            JOIN periodos_academicos pa ON s.idPeriodoAcademico = pa.idPeriodoAcademico
+            WHERE s.codigoSeccion = ?
+              AND pa.activo = true
+            ORDER BY u.nombre_completo
+            """;
 
         Connection cn = co.getConnection();
         PreparedStatement ps = cn.prepareStatement(sql);
         ps.setString(1, codigoSeccion.trim());
         return ps.executeQuery();
     }
+    
+    
+    public ResultSet listarProfesorPorCurso(String nombreCurso) throws SQLException {
+        String sql = """
+            SELECT DISTINCT u.nombre_completo
+            FROM secciones s
+            JOIN cursos c ON s.idCursos = c.idCursos
+            JOIN periodos_academicos pa ON s.idPeriodoAcademico = pa.idPeriodoAcademico
+            JOIN usuarios u ON s.idProfesor = u.idUsuarios
+            WHERE LOWER(c.nombre) = LOWER(?)   -- ← Filtra por nombre del curso
+              AND pa.activo = true
+              AND u.rol = 'profesor'
+              AND u.estado = true
+            ORDER BY u.nombre_completo
+            """;
+
+        Connection cn = co.getConnection();
+        PreparedStatement ps = cn.prepareStatement(sql);
+        ps.setString(1, nombreCurso.trim());
+        return ps.executeQuery();
+    }
+    
 }
