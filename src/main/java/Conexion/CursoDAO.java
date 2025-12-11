@@ -61,7 +61,7 @@ public class CursoDAO {
     }
     
     public ResultSet listarCursos() {
-        String sql = "SELECT codigoCurso, nombre, horas_semanales, ciclo FROM cursos ORDER BY codigoCurso,ciclo ";
+        String sql = "SELECT codigoCurso, nombre, horas_semanales, ciclo,fecha_curso FROM cursos ORDER BY codigoCurso,ciclo ";
         try {
             ps = co.getConnection().prepareStatement(sql);
             return ps.executeQuery();
@@ -70,11 +70,12 @@ public class CursoDAO {
             return null;
         }
     }
-    
-    public int obtenerIdCursoPorNombre(String nombreCurso) throws SQLException {
+
+    public int obtenerIdCursoPorNombre(String nombreCurso) throws SQLException 
+    {
         String sql = "SELECT idCursos FROM cursos WHERE nombre = ?";
-        try (Connection conn = co.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection cn = co.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, nombreCurso);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -82,16 +83,15 @@ public class CursoDAO {
                 }
             }
         }
-        return 0; 
+        return -1;
     }
-    
-    public ResultSet listarCursosParaCombo() throws SQLException {
-            String sql = "SELECT idCursos, nombre " +
-                     "FROM cursos " +
-                     "ORDER BY idCursos";
+    public java.sql.ResultSet listarCursosParaCombo() throws SQLException {
+            String sql = "SELECT  nombre " +
+                         "FROM cursos " +
+                         "ORDER BY nombre";
 
-        Connection cn = co.getConnection();
-        PreparedStatement ps = cn.prepareStatement(sql);
-        return ps.executeQuery();
+            java.sql.Connection cn = co.getConnection();
+            java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+            return ps.executeQuery();
+        }
     }
-}

@@ -89,8 +89,45 @@ public class PeriodoAcademicoDAO {
         return false;
     }
     
+    
+    
+    
+    public int obtenerIdPeriodoPorCodigo(String codigoPeriodo) {
+    String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE codigoPeriodo = ?";
+    try (Connection cn = co.getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+        
+        ps.setString(1, codigoPeriodo);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("idPeriodoAcademico");
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Error al obtener ID de periodo: " + e.getMessage());
+    }
+    return -1; 
+}
+    
+    public boolean esPeriodoActivo(int idPeriodo) {
+    String sql = "SELECT activo FROM periodos_academicos WHERE idPeriodoAcademico = ?";
+    try (Connection cn = co.getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+        
+        ps.setInt(1, idPeriodo);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getBoolean("activo"); // true si está activo, false si inactivo
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Error al verificar estado del periodo: " + e.getMessage());
+    }
+    return false; // Si hay error o no existe, se considera inactivo.
+}
+    
     public ResultSet listarPeriodos() {
-        String sql = "SELECT idPeriodoAcademico, codigoPeriodo, fecha_inicio, fecha_fin, activo FROM periodos_academicos ORDER BY fecha_inicio";
+        String sql = "SELECT idPeriodoAcademico, codigoPeriodo, fecha_inicio, fecha_fin, activo,fecha_periodo  FROM periodos_academicos ORDER BY codigoPeriodo";
         try {
             ps = co.getConnection().prepareStatement(sql);
             return ps.executeQuery();
@@ -99,29 +136,14 @@ public class PeriodoAcademicoDAO {
             return null;
         }
     }
-    
-    public int obtenerIdPeriodoPorCodigo(String codigoPeriodo) throws SQLException {
-        String sql = "SELECT idPeriodoAcademico FROM periodos_academicos WHERE codigoPeriodo = ?";
-        try (Connection conn = co.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, codigoPeriodo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("idPeriodoAcademico");
-                }
-            }
-        }
-        return 0; 
-    }
-    
-    public ResultSet listarPeriodosParaCombo() throws SQLException {
-    // Las tablas son 'periodos_academicos', las columnas son 'idPeriodoAcademico' y 'codigoPeriodo'.
-        String sql = "SELECT idPeriodoAcademico, codigoPeriodo " +
-                     "FROM periodos_academicos " +
-                     "ORDER BY idPeriodoAcademico";
 
-        Connection cn = co.getConnection();
-        PreparedStatement ps = cn.prepareStatement(sql);
-        return ps.executeQuery();
-    }
+    public java.sql.ResultSet listarPeriodosParaCombo() throws SQLException {
+    String sql = "SELECT codigoPeriodo " +
+                 "FROM periodos_academicos " +
+                 "ORDER BY codigoPeriodo";
+    
+    java.sql.Connection cn = co.getConnection();
+    java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+    return ps.executeQuery();
+}
 }

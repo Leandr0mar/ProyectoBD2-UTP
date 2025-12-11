@@ -186,7 +186,7 @@ public class UsuarioDAO {
     public ResultSet listarUsuarios() {
         rs = null;
         try {
-            String sql = "SELECT codigo,email, contrasena, nombre_completo, dni, rol, estado FROM usuarios order by codigo";
+            String sql = "SELECT codigo,email, contrasena, nombre_completo, dni, rol, estado, fecha_usuario FROM usuarios order by codigo";
             ps = co.getConnection().prepareStatement(sql);
             rs = ps.executeQuery();
         } catch (Exception e) {
@@ -207,10 +207,10 @@ public class UsuarioDAO {
         return rs;
     }
     
-    public int obtenerIdPorNombreCompleto(String nombreCompleto) throws SQLException {
-        String sql = "SELECT idUsuarios FROM usuarios WHERE nombre_completo = ?";
-        try (Connection conn = co.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public int obtenerIdAlumnoPorNombre(String nombreCompleto) throws SQLException {
+        String sql = "SELECT idUsuarios FROM usuarios WHERE nombre_completo = ? AND rol = 'alumno'";
+        try (Connection cn = co.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, nombreCompleto);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -218,17 +218,19 @@ public class UsuarioDAO {
                 }
             }
         }
-        return 0; 
+        return -1;
     }
     
-    public ResultSet listarAlumnosParaCombo() throws SQLException {
-        String sql = "SELECT idUsuarios, nombre_completo " +
-                     "FROM usuarios " +
-                     "WHERE rol = 'alumno' " + // Ajusta la condición de filtro según tu BD
-                     "ORDER BY idUsuarios";
-
-        Connection cn = co.getConnection();
-        PreparedStatement ps = cn.prepareStatement(sql);
-        return ps.executeQuery();
-        }
+    public java.sql.ResultSet listarAlumnosParaCombo() throws SQLException {
+    // Usamos el ID interno (idUsuarios) para la matrícula
+    String sql = "SELECT nombre_completo " +
+                 "FROM usuarios " +
+                 "WHERE rol = 'alumno' " +
+                 "ORDER BY nombre_completo";
+    
+    java.sql.Connection cn = co.getConnection();
+    java.sql.PreparedStatement ps = cn.prepareStatement(sql);
+    return ps.executeQuery();
+}
+    
 }

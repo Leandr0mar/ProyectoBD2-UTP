@@ -1,25 +1,27 @@
 package Conexion;
 import java.sql.*;
 public class conexionBd {
-    Connection cn;
-
     public conexionBd() {
         try {
             Class.forName("org.postgresql.Driver");
-            cn = DriverManager.getConnection(
+            System.out.println("Driver cargado correctamente.");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error al cargar el driver de PostgreSQL: " + e.getMessage());
+        }
+    }
+    
+    public Connection getConnection() throws SQLException {
+        try {
+            Connection cn = DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5432/ProyectoBD2",
                 "postgres",
                 "root"
             );
-            
-            System.out.println("Conectado");
-        } catch (Exception e) {
-            System.out.println("Error al conectar: "+e.getMessage());
+            return cn;
+        } catch (SQLException e) {
+            System.out.println("Error al conectar: " + e.getMessage());
+            throw e;
         }
-    }
-    
-    public Connection getConnection() {
-        return cn;
     }
 
 }
