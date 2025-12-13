@@ -272,6 +272,7 @@ public class RecuperarContrasena extends javax.swing.JFrame {
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try{
         Login l=new Login();
         
         String correo=txtCorreo.getText();
@@ -281,10 +282,12 @@ public class RecuperarContrasena extends javax.swing.JFrame {
         
         if(contra1.isEmpty() || contra2.isEmpty()){
             JOptionPane.showMessageDialog(this, "Ingrese la nueva contraseña");
+            return;
         }
         
         if(!contra1.equals(contra2)){
             JOptionPane.showMessageDialog(this, "Las contraseñas no coinsiden,vuelva a intentarlo");
+            return;
         }
         
         UsuarioDAO dao = new UsuarioDAO();
@@ -297,12 +300,15 @@ public class RecuperarContrasena extends javax.swing.JFrame {
             l.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this,"El código de recuperación es incorrecto o ha expirado. Intente de nuevo.");
+            return;
+        }
+        }catch(Exception e){
+            System.out.println("error" + e);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+   
+            
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

@@ -13,7 +13,7 @@ public class UsuarioDAO {
     public Usuario VerificarUsuario(String correo,String contrasena){
         
         Usuario u=null;
-        String sql = "select email,contrasena,nombre_completo,rol from usuarios where email=? and contrasena=? and estado=true";
+        String sql = "select idUsuarios email,contrasena,nombre_completo,rol from usuarios where email=? and contrasena=? and estado=true";
         
         try{
             con=co.getConnection();
@@ -39,6 +39,82 @@ public class UsuarioDAO {
         return u;
     }
     
+    
+public int listarIdProfesorPorCorreo(String correo) throws SQLException {
+    
+    Connection cn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    int idUsuario = 0;
+
+    String sql = "SELECT idUsuarios FROM usuarios WHERE email = ?";
+
+    try {
+        cn = co.getConnection();
+        ps = cn.prepareStatement(sql);
+        
+        ps.setString(1, correo.trim());
+
+        rs = ps.executeQuery(); 
+        
+ 
+        if (rs.next()) {
+ 
+            idUsuario = rs.getInt("idUsuarios"); 
+        }
+        
+    } catch (SQLException e) {
+        System.err.println("Error al buscar ID por correo: " + e.getMessage());
+        throw e;
+        
+    } finally {
+
+        if (rs != null) { try { rs.close(); } catch (SQLException ex) { /* ignorar */ } }
+        if (ps != null) { try { ps.close(); } catch (SQLException ex) { /* ignorar */ } }
+        if (cn != null) { try { cn.close(); } catch (SQLException ex) { /* ignorar */ } }
+    }
+
+    return idUsuario;
+}
+    
+    
+public int listarIdAlumnoPorCorreo(String correo) throws SQLException {
+    
+    Connection cn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    int idUsuario = 0;
+
+    String sql = "SELECT idUsuarios FROM usuarios WHERE email = ?";
+
+    try {
+        cn = co.getConnection();
+        ps = cn.prepareStatement(sql);
+        
+        ps.setString(1, correo.trim());
+
+        rs = ps.executeQuery(); 
+        
+ 
+        if (rs.next()) {
+ 
+            idUsuario = rs.getInt("idUsuarios"); 
+        }
+        
+    } catch (SQLException e) {
+        System.err.println("Error al buscar ID por correo: " + e.getMessage());
+        throw e;
+        
+    } finally {
+
+        if (rs != null) { try { rs.close(); } catch (SQLException ex) { /* ignorar */ } }
+        if (ps != null) { try { ps.close(); } catch (SQLException ex) { /* ignorar */ } }
+        if (cn != null) { try { cn.close(); } catch (SQLException ex) { /* ignorar */ } }
+    }
+
+    return idUsuario;
+}
+
     public Usuario VerificarCorreo(String correo){
         Usuario u=null;
         String sql = "select email from usuarios where email=? and estado=true";

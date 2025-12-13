@@ -2,6 +2,8 @@ package Conexion;
 
 import Objeto.Curso;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 public class CursoDAO {
@@ -94,4 +96,53 @@ public class CursoDAO {
             java.sql.PreparedStatement ps = cn.prepareStatement(sql);
             return ps.executeQuery();
         }
+    
+
+    public List<String> listarCursosParaComboNotas(int idProfe) {
+    List<String> lista = new ArrayList<>();
+
+    String sql = """
+                 SELECT DISTINCT
+                     c.idCursos,
+                     c.nombre AS nombre_curso,
+                     s.codigoSeccion,
+                     p.codigoPeriodo AS periodo_academico,
+                     s.idseccion
+                 FROM
+                     secciones s
+                 JOIN
+                     cursos c ON s.idCursos = c.idCursos
+                 JOIN
+                     periodos_academicos p ON s.idPeriodoAcademico = p.idPeriodoAcademico
+                 WHERE
+                     s.idProfesor = ?
+                 ORDER BY
+                     nombre_curso, codigoSeccion;""";
+
+    
+    
+     try (Connection con = co.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+      
+        ps.setInt(1, idProfe);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+            int id = rs.getInt("idCursos");
+            String nombre = rs.getString("nombre_curso");
+
+            String texto = id + " " + nombre;  // 👈 aqui: 1 Matemática
+            lista.add(texto);
+        } 
+        }
+
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, 
+            "Error al listar cursos: " + e.getMessage());
+    }
+
+    return lista;
+}
+
     }

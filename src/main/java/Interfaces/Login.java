@@ -16,8 +16,7 @@ public class Login extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
 
     Administrador a = new Administrador();
-    alumno al= new alumno();
-    profe pro= new profe();
+    UsuarioDAO Udao= new UsuarioDAO();
             
     public Login() {
         initComponents();
@@ -161,7 +160,7 @@ public class Login extends javax.swing.JFrame {
         if (usuario != null) {
             String rol = usuario.getRol();
             String nombre = usuario.getNombrecompleto();
-
+            
             if(rol.equals("administrador")){
                 JOptionPane.showMessageDialog(this, "Bienvenido "+ rol+" "+nombre);
 
@@ -169,16 +168,27 @@ public class Login extends javax.swing.JFrame {
                 a.setVisible(true);
             }
             else if(rol.equals("profesor")){
-                JOptionPane.showMessageDialog(this, "Bienvenido "+ rol+" "+nombre);
-
-                this.dispose();
-                pro.setVisible(true);
+                try {
+                    JOptionPane.showMessageDialog(this, "Bienvenido "+ rol+" "+nombre);
+                    this.dispose();
+                    int idAEnviar=Udao.listarIdProfesorPorCorreo(correo);
+                    Profesor proId=new Profesor(idAEnviar);
+                    proId.setVisible(true);
+                } catch (SQLException ex) {
+                    System.getLogger(Login.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
             }
             else if(rol.equals("alumno")){
                 JOptionPane.showMessageDialog(this, "Bienvenido "+ rol+" "+nombre);
+                try{
+                    this.dispose();
+                    int idAEnviar=Udao.listarIdAlumnoPorCorreo(correo);
+                    Alumno alId=new Alumno(idAEnviar);
+                    alId.setVisible(true);
+                }catch(SQLException ex){
+                    System.getLogger(Login.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
 
-                this.dispose();
-                al.setVisible(true);
             }
             else{
                 JOptionPane.showMessageDialog(this, "Credenciales incorrectas o usuario inactivo.", "Error de Login", JOptionPane.ERROR_MESSAGE);
@@ -187,9 +197,7 @@ public class Login extends javax.swing.JFrame {
         else JOptionPane.showMessageDialog(this, "Credenciales incorrestas,vuelva a ingresarlas");
     }//GEN-LAST:event_btnIngresarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main(String args[]) throws SQLException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -208,11 +216,7 @@ public class Login extends javax.swing.JFrame {
         }
         //</editor-fold>
         
-        try {
-            FlatLightLaf.setup();
-        } catch (Exception ex) {
-            System.err.println("Error al establecer el Look and Feel de FlatLaf" + ex);
-        }
+
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Login().setVisible(true));

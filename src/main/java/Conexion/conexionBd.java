@@ -13,7 +13,7 @@ public class conexionBd {
     public Connection getConnection() throws SQLException {
         try {
             Connection cn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:5432/ProyectoBD2",
+                "jdbc:postgresql://localhost:5432/ProyectoDB2",
                 "postgres",
                 "root"
             );
