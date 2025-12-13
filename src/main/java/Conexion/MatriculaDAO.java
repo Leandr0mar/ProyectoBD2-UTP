@@ -177,11 +177,6 @@ public class MatriculaDAO {
             WHERE idMatriculas = (SELECT idMatriculas FROM matriculas WHERE codigoMatricula = ?)
             """;
 
-        String eliminarCertificados = """
-            DELETE FROM certificados 
-            WHERE idMatriculas = (SELECT idMatriculas FROM matriculas WHERE codigoMatricula = ?)
-            """;
-
         String eliminarMatricula = """
             DELETE FROM matriculas 
             WHERE codigoMatricula = ?
@@ -198,11 +193,7 @@ public class MatriculaDAO {
                 psNotas.executeUpdate();
             }
 
-            // 3. Eliminar certificados asociados (si aplica)
-            try (PreparedStatement psCert = cn.prepareStatement(eliminarCertificados)) {
-                psCert.setString(1, codMatricula);
-                psCert.executeUpdate();
-            }
+
 
             // 4. Finalmente eliminar la matrícula
             try (PreparedStatement psMat = cn.prepareStatement(eliminarMatricula)) {
